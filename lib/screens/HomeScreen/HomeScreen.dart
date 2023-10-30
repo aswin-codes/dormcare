@@ -128,6 +128,16 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+  Color returnStatus() {
+    if (status == 'NOT GIVEN' || status == 'GIVEN') {
+      return Color(0xFFA19D9D).withOpacity(0.350);
+    } else if (status == 'PROCESS') {
+      return Color(0xFFCBDA8D).withOpacity(0.35);
+    } else {
+      return Color(0xFF38E635).withOpacity(0.35);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +157,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset("assets/Icons/laundry_filled.png"),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/complaint');
+              },
               child: Image.asset("assets/Icons/complaint_outline.png"),
             ),
             GestureDetector(
@@ -155,7 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset("assets/Icons/cleaning_outline.png"),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/profile');
+              },
               child: Image.asset("assets/Icons/profile_outline.png"),
             ),
           ],
@@ -309,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Container(
                           height: 100.h,
                           decoration: BoxDecoration(
-                              color: const Color(0xFFA19D9D).withOpacity(0.35),
+                              color: returnStatus(),
                               borderRadius: BorderRadius.circular(7.r)),
                           padding: EdgeInsets.all(10.h),
                           child: Column(

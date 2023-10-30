@@ -1,5 +1,7 @@
+import 'package:dormcare/screens/Complaint/ComplaintScreen.dart';
 import 'package:dormcare/screens/HomeScreen/HomeScreen.dart';
 import 'package:dormcare/screens/Login/Login.dart';
+import 'package:dormcare/screens/Profile/ProfileScreen.dart';
 import 'package:dormcare/screens/SignUp/SignUp.dart';
 import 'package:dormcare/screens/SplashScreen/SplashScreen.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +33,11 @@ class MyApp extends StatelessWidget {
             '/' :(context) => HomeScreen(),
             '/splash' : (context) => SplashScreen(),
             '/signup' :  (context) => SignUp(),
-            '/login' :(context) => Login()
+            '/login' :(context) => Login(),
+            '/profile' : (context) => ProfileScreen(),
+            '/complaint' : (context) => ComplaintScreen()
           },
-          initialRoute: '/splash',
+          initialRoute: '/complaint',
         );
       },
     );
