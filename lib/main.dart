@@ -1,5 +1,7 @@
+import 'package:dormcare/screens/Announcements/AnnouncementsScreen.dart';
 import 'package:dormcare/screens/Complaint/ComplaintScreen.dart';
 import 'package:dormcare/screens/HomeScreen/HomeScreen.dart';
+import 'package:dormcare/screens/InitialScreen/InitialScreen.dart';
 import 'package:dormcare/screens/Login/Login.dart';
 import 'package:dormcare/screens/Profile/ProfileScreen.dart';
 import 'package:dormcare/screens/RoomMaintenance/RoomMaintenanceScreen.dart';
@@ -21,7 +23,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       // Use builder only if you need to use library outside ScreenUtilInit context
-      builder: (_ , child) {
+      builder: (_, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'DormCare',
@@ -31,15 +33,17 @@ class MyApp extends StatelessWidget {
             textTheme: Typography.englishLike2018.apply(fontSizeFactor: 1.sp),
           ),
           routes: {
-            '/' :(context) => HomeScreen(),
-            '/splash' : (context) => SplashScreen(),
-            '/signup' :  (context) => SignUp(),
-            '/login' :(context) => Login(),
-            '/profile' : (context) => ProfileScreen(),
-            '/complaint' : (context) => ComplaintScreen(),
-            '/room' :  (context) => RoomMaintenance()
+            '/': (context) => HomeScreen(),
+            '/splash': (context) => SplashScreen(),
+            '/signup': (context) => SignUp(),
+            '/login': (context) => Login(),
+            '/profile': (context) => ProfileScreen(),
+            '/complaint': (context) => ComplaintScreen(),
+            '/room': (context) => RoomMaintenance(),
+            '/announcements': (context) => AnnouncementsScreen(),
+            '/initial' : (context) => InitialScreen()
           },
-          initialRoute: '/room',
+          initialRoute: '/initial',
         );
       },
     );

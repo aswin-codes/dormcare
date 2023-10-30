@@ -201,6 +201,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: EdgeInsets.only(right: 20.w),
             child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, '/announcements');
+              },
               child: Image.asset(
                 'assets/Icons/Announcement.png',
                 height: 35.h,
