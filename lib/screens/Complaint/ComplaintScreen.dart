@@ -25,8 +25,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
         id: 2,
         date: "30 Dec 2023",
         time: "02:00",
-        complaint:
-            "Internet Connection is very poor in D-Block.",
+        complaint: "Internet Connection is very poor in D-Block.",
         likes: 123,
         status: 'Completed'),
   ];
@@ -147,7 +146,9 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                 child: Image.asset("assets/Icons/complaint_filled.png"),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, '/room');
+                },
                 child: Image.asset("assets/Icons/cleaning_outline.png"),
               ),
               GestureDetector(

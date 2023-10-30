@@ -163,7 +163,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset("assets/Icons/complaint_outline.png"),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/room');
+              },
               child: Image.asset("assets/Icons/cleaning_outline.png"),
             ),
             GestureDetector(

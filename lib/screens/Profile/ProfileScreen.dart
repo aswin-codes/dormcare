@@ -43,7 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Image.asset("assets/Icons/complaint_outline.png"),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/room');
+              },
               child: Image.asset("assets/Icons/cleaning_outline.png"),
             ),
             GestureDetector(
