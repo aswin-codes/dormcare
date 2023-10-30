@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,12 +11,49 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String id = '22BCE1621';
-  String name = "Aswin Raaj P S";
-  String emailId = "aswinraaj.ps2022@vitstudent.ac.in";
-  String phoneNumber = "9566875400";
-  String roomNo = '219';
-  String hostelBlock = 'D1';
+  String id = '';
+  String name = "";
+  String emailId = "";
+  String phoneNumber = "";
+  String roomNo = '';
+  String hostelBlock = '';
+  Future<void> initailFetch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? regNo = await prefs.getString('registration_number');
+    String? username = await prefs.getString('username');
+    String? email = await prefs.getString('email');
+    String? phonenumber = await prefs.getString('phone_number');
+    String? roomnumber = await prefs.getString('room_number');
+    String? hostelblock = await prefs.getString('hostel_block');
+    setState(() {
+      id = regNo!;
+      name = username!;
+      emailId = email!;
+      phoneNumber = phonenumber!;
+      roomNo = roomnumber!;
+      hostelBlock = hostelblock!;
+    });
+  }
+
+  Future<void> handleLogout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isUserLoggedIn', false);
+    prefs.remove('registration_number');
+    prefs.remove('username');
+    prefs.remove('email');
+    prefs.remove('phone_number');
+    prefs.remove('room_number');
+    prefs.remove('hostel_block');
+    Navigator.pushNamed(context, '/initial');
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initailFetch();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -423,6 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   onPressed: () {
                     //Logging Out
+                    handleLogout();
                   },
                   child: Text(
                     "Log Out",

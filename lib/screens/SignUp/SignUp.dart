@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -24,6 +28,38 @@ class _SignUpState extends State<SignUp> {
   String _password = '';
   String roomNo = '';
   String hostelBloc = 'A';
+
+  Future<void> handleSignUp() async {
+    Map<String, dynamic> body = {
+      'registration_number': _collegeRegistrationNo,
+      'username': _name,
+      'password': _password,
+      'phone_number': _phoneNumber,
+      'email': _emailId,
+      'room_number': roomNo,
+      'hostel_block': hostelBloc
+    };
+    final response = await http.post(
+        Uri.parse(
+          'http://10.0.2.2:8000/users/',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body));
+    final Map<String, dynamic> respBody = jsonDecode(response.body);
+    print(respBody);
+    if (respBody['success'] && response.statusCode == 201) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isUserLoggedIn', true);
+      prefs.setString('registration_number', respBody['details']['registration_number']);
+      prefs.setString('username', respBody['details']['username']);
+      prefs.setString('email', respBody['details']['email']);
+      prefs.setString('phone_number', respBody['details']['phone_number']);
+      prefs.setString('room_number', respBody['details']['room_number']);
+      prefs.setString('hostel_block', respBody['details']['hostel_block']);
+      Navigator.pushNamed(context, '/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -274,7 +310,8 @@ class _SignUpState extends State<SignUp> {
                   ),
                   onPressed: () {
                     //After validating
-                    Navigator.pushNamed(context, '/');
+                    handleSignUp();
+                    //Navigator.pushNamed(context, '/');
                   },
                   child: Text(
                     "Create Account",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RoomMaintenance extends StatefulWidget {
   const RoomMaintenance({super.key});
@@ -10,9 +11,30 @@ class RoomMaintenance extends StatefulWidget {
 }
 
 class _RoomMaintenanceState extends State<RoomMaintenance> {
-  String hostelBlock = "D1";
-  String roomNo = "219";
+  //Get from Shared Preferences
+  String hostelBlock = "";
+  String roomNo = "";
+
+  //State variables for room maintenance (Node JS)
   bool isDone = false;
+
+  Future<void> initialFetch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? hostelblock = await prefs.getString('hostel_block');
+    String? roomno = await prefs.getString('room_number');
+    setState(() {
+      hostelBlock = hostelblock!;
+      roomNo = roomno!;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initialFetch();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

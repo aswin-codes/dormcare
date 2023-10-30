@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,9 +14,30 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  String _emailId = '';
+  String _username = '';
   String _password = '';
   bool obscureText = true;
+
+  Future<void> handleLogin() async {
+    Map<String, dynamic> body = {'username': _username, 'password': _password};
+
+    final response = await http.post(Uri.parse("http://10.0.2.2:8000/login/"),
+        headers: {'Content-Type': 'application/json'}, body: jsonEncode(body));
+    final Map<String, dynamic> respBody = jsonDecode(response.body);
+    
+    if (respBody['success'] == true && (response.statusCode == 200)) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isUserLoggedIn', true);
+      prefs.setString('registration_number', respBody['details']['registration_number']);
+      prefs.setString('username', respBody['details']['username']);
+      prefs.setString('email', respBody['details']['email']);
+      prefs.setString('phone_number', respBody['details']['phone_number']);
+      prefs.setString('room_number', respBody['details']['room_number']);
+      prefs.setString('hostel_block', respBody['details']['hostel_block']);
+      Navigator.pushNamed(context, '/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,21 +98,18 @@ class _LoginState extends State<Login> {
                 decoration: const InputDecoration(
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    labelText: 'Email ID',
+                    labelText: 'User Name',
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder()),
                 onChanged: (value) {
                   setState(() {
-                    _emailId = value;
+                    _username = value;
                   });
                 },
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return 'Please enter your email ID.';
-                  }
-                  if (!RegExp(r'^.+@[a-zA-Z]+\.[a-zA-Z]+$').hasMatch(value)) {
-                    return 'Please enter a valid email ID.';
+                    return 'Please enter your username';
                   }
                   return null;
                 },
@@ -156,7 +178,8 @@ class _LoginState extends State<Login> {
                   ),
                   onPressed: () {
                     //After Validating
-                    Navigator.pushNamed(context, '/');
+                    //Navigator.pushNamed(context, '/');
+                    handleLogin();
                   },
                   child: Text(
                     "Login",

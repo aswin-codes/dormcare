@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:dormcare/screens/Complaint/ComplaintModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class ComplaintScreen extends StatefulWidget {
   const ComplaintScreen({super.key});
@@ -12,23 +15,39 @@ class ComplaintScreen extends StatefulWidget {
 }
 
 class _ComplaintScreenState extends State<ComplaintScreen> {
-  List<Complaint> complaintList = [
-    Complaint(
-        id: 1,
-        date: "30 Dec 2023",
-        time: "02:00",
-        complaint:
-            "Drinking water is very bad. Got cold from this. When it will get ready ?",
-        likes: 123,
-        status: 'Under Process'),
-    Complaint(
-        id: 2,
-        date: "30 Dec 2023",
-        time: "02:00",
-        complaint: "Internet Connection is very poor in D-Block.",
-        likes: 123,
-        status: 'Completed'),
-  ];
+  List<Complaint> complaintList = [];
+
+  Future<void> initialFetch() async {
+    try {
+      final response =
+          await http.get(Uri.parse("http://10.0.2.2:8000/complain/"));
+      if (response.statusCode == 200) {
+        final List<dynamic> respBody = jsonDecode(response.body);
+
+        final List<Complaint> newComplaintList = respBody.map((element) {
+          print(element['id']);
+          return Complaint(
+            id: element['id'],
+            date: element['date'],
+            time: element['time'],
+            complaint: element['complaints'],
+            likes: element['likes'],
+            status: element['status'],
+          );
+        }).toList();
+        print(newComplaintList);
+        setState(() {
+          complaintList.clear();
+          complaintList.addAll(newComplaintList);
+        });
+      } else {
+        // Handle the response status code or errors here
+      }
+    } catch (error) {
+      // Handle exceptions, e.g., network issues
+      print("Error: $error");
+    }
+  }
 
   Color returnStatus(String status) {
     if (status == "Posted") {
@@ -38,6 +57,21 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
     } else {
       return const Color(0xFF239035);
     }
+  }
+
+  Future<void> makeRequest(Complaint complaint) async {
+    Map<String, dynamic> body = {
+      'date': complaint.date,
+      'time': complaint.time,
+      'complaints': complaint.complaint,
+      'likes': complaint.likes,
+      'status': complaint.status
+    };
+    final response = await http.post(
+        Uri.parse("http://10.0.2.2:8000/complain/"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body));
+    initialFetch();
   }
 
   Future<void> _showAddComplaintDialog() async {
@@ -100,6 +134,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                     likes: 0,
                     status: 'Posted',
                   );
+                  makeRequest(newComplaintItem);
 
                   // Add the new complaint to the list
                   setState(() {
@@ -119,6 +154,19 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
         );
       },
     );
+  }
+
+  Future<void> incrementLike(int id) async {
+    print(id);
+    final response =
+        await http.post(Uri.parse("http://10.0.2.2:8000/complain/${id}"));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initialFetch();
+    super.initState();
   }
 
   @override
@@ -206,7 +254,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                   color: const Color(0xFF2B3B4E),
                                   borderRadius: BorderRadius.circular(12.r)),
                               padding: EdgeInsets.all(15.h),
-                              margin: EdgeInsets.symmetric(vertical: 20.h),
+                              margin: EdgeInsets.symmetric(vertical: 10.h),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -260,6 +308,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
+                                                incrementLike(
+                                                    underProcess[index].id);
                                                 setState(() {
                                                   underProcess[index].likes++;
                                                 });
@@ -325,7 +375,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                   color: const Color(0xFF2B3B4E),
                                   borderRadius: BorderRadius.circular(12.r)),
                               padding: EdgeInsets.all(15.h),
-                              margin: EdgeInsets.symmetric(vertical: 20.h),
+                              margin: EdgeInsets.symmetric(vertical: 10.h),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -379,6 +429,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
+                                                incrementLike(
+                                                    underProcess[index].id);
                                                 setState(() {
                                                   underProcess[index].likes++;
                                                 });
@@ -445,7 +497,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                   color: const Color(0xFF2B3B4E),
                                   borderRadius: BorderRadius.circular(12.r)),
                               padding: EdgeInsets.all(15.h),
-                              margin: EdgeInsets.symmetric(vertical: 20.h),
+                              margin: EdgeInsets.symmetric(vertical: 10.h),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -499,6 +551,8 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
+                                                incrementLike(
+                                                    underProcess[index].id);
                                                 setState(() {
                                                   underProcess[index].likes++;
                                                 });
@@ -547,7 +601,10 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                                 ],
                               ),
                             );
-                          })
+                          }),
+                      SizedBox(
+                        height: 50.h,
+                      ),
                     ],
                   ),
                 ))));

@@ -2,6 +2,7 @@ import 'package:dormcare/screens/HomeScreen/Clothes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,16 +13,31 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String greetText = '';
-  String userName = "Aswin Raaj P S";
+  //Get from Shared Preferences
+  String userName = "";
+  String RegNo = '';
+  String roomNo = '';
+  //States for laundry Backend
   bool isClothesGiven = false;
   bool isSlot = false;
-  String RegNo = '22BCE1621';
-  String roomNo = '219';
   String status = 'NOT GIVEN';
   bool isClothesAdding = false;
   String nextSlot = '22 Dec 2023';
 
   List<Clothes> clothesList = [];
+
+  Future<void> initialFetch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = await prefs.getString('username');
+    String? regno = await prefs.getString('registration_number');
+    String? roomno = await prefs.getString('room_number');
+
+    setState(() {
+      userName = username!;
+      RegNo = regno!;
+      roomNo = roomno!;
+    });
+  }
 
   Future<void> showClothesDialog() async {
     String clothType = '';
@@ -125,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     setGreeting();
+    initialFetch();
     super.initState();
   }
 
