@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:dormcare/screens/HomeScreen/Clothes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,11 +35,38 @@ class _HomeScreenState extends State<HomeScreen> {
     String? regno = await prefs.getString('registration_number');
     String? roomno = await prefs.getString('room_number');
 
-    setState(() {
-      userName = username!;
-      RegNo = regno!;
-      roomNo = roomno!;
-    });
+    final response = await http
+        .get(Uri.parse("http://10.0.2.2:3000/laundry/status/${regno}"));
+
+    final lstatus = jsonDecode(response.body)['status'];
+    print(lstatus);
+
+    if (lstatus == 'NOT GIVEN') {
+      setState(() {
+        userName = username!;
+        RegNo = regno!;
+        roomNo = roomno!;
+        status = lstatus;
+      });
+    } else {
+      print("ji");
+      final response = await http
+          .get(Uri.parse("http://10.0.2.2:3000/laundry/details/$regno"));
+      final respBody = jsonDecode(response.body);
+      final lstatus = respBody['status'];
+      final Map<String, dynamic> clothesMap = respBody['clothes'];
+      final List<Clothes> newclothesList = clothesMap.entries
+          .map((entry) => Clothes(count: entry.value as int, type: entry.key))
+          .toList();
+      setState(() {
+        isClothesGiven = true;
+        userName = username!;
+        RegNo = regno!;
+        roomNo = roomno!;
+        status = lstatus;
+        clothesList = newclothesList;
+      });
+    }
   }
 
   Future<void> showClothesDialog() async {
@@ -153,6 +183,17 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return Color(0xFF38E635).withOpacity(0.35);
     }
+  }
+
+  Future<void> addLaundry() async {
+    final laundryData = LaundryData(
+        regNo: RegNo,
+        roomNo: roomNo,
+        status: 'GIVEN',
+        clothesList: clothesList);
+    final jsonData = jsonEncode(laundryData);
+    final response = await http.post(Uri.parse("http://10.0.2.2:3000/laundry/"),
+        headers: {'Content-Type': 'application/json'}, body: jsonData);
   }
 
   @override
@@ -494,6 +535,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 minimumSize: MaterialStateProperty.all(
                                     Size(150.w, 50.h))),
                             onPressed: () {
+                              addLaundry();
                               setState(() {
                                 isClothesAdding = false;
                                 isClothesGiven = true;
